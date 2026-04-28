@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Lucro Fácil v17</title>
+    <style>
+        :root {
+            --primary: #22c55e;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); padding-bottom: 130px; }
+
+        /* HEADER */
+        .header-green {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            padding: 40px 20px 60px 20px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            color: white;
+        }
+        .header-green h1 { font-size: 32px; font-weight: 800; }
+        .status-pill { background: rgba(255,255,255,0.2); display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; margin-top: 10px; }
+        .dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; }
+
+        .container { padding: 0 20px; margin-top: -30px; }
+
+        /* BOTÕES PRINCIPAIS */
+        .btn-venda {
+            background: var(--card-bg); color: var(--primary); border: none; padding: 22px; border-radius: 20px;
+            width: 100%; font-size: 18px; font-weight: 800; box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px; cursor: pointer; display: block; text-align: center;
+        }
+
+        /* GRID DASHBOARD */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { background: var(--card-bg); padding: 18px; border-radius: 20px; border: 1px solid var(--border); }
+        .stat-label { font-size: 11px; color: var(--text-sub); font-weight: 700; text-transform: uppercase; display: block; }
+        .stat-value { font-size: 17px; font-weight: 800; margin-top: 5px; display: block; }
+
+        /* PÁGINAS */
+        .page { display: none; padding: 20px; }
+        .page.active { display: block; }
+        
+        .item-card { background: var(--card-bg); border-radius: 18px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .btn-action { background: #f1f5f9; border: none; padding: 10px; border-radius: 12px; cursor: pointer; }
+
+        /* NAVEGAÇÃO INFERIOR */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding: 12px 0 35px 0; z-index: 100; }
+        .nav-item { background: none; border: none; color: #94a3b8; font-size: 9px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: 700; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+        /* MODAL */
+        #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; }
+        input { width:100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
+        .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="modal" onclick="if(event.target==this) fecharModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modal-title" style="margin-bottom:20px">Produto</h3>
+            <input type="hidden" id="edit-index">
+            <input type="text" id="p-nome" placeholder="Nome">
+            <input type="number" id="p-custo" placeholder="Custo R$">
+            <input type="number" id="p-venda" placeholder="Venda R$">
+            <input type="number" id="p-qtd" placeholder="Estoque">
+            <button class="btn-confirm" onclick="salvarProduto()">Salvar Produto</button>
+        </div>
+    </div>
+
+    <div id="home" class="page active" style="padding:0">
+        <div class="header-green">
+            <p>Saldo em caixa 💰</p>
+            <h1 id="liq-home">R$ 0,00</h1>
+            <div class="status-pill"><div class="dot"></div> Operação Ativa</div>
+        </div>
+        <div class="container">
+            <button class="btn-venda" onclick="vendaRapida()">+ Realizar Venda</button>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Vendas Totais</span>
+                    <span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Gastos</span>
+                    <span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Vendas (Qtd)</span>
+                    <span id="v-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Produtos</span>
+                    <span id="p-count" class="stat-value">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="produtos" class="page">
+        <h2 style="margin-bottom:20px">Gerenciar Estoque</h2>
+        <button class="btn-venda" style="background:var(--primary); color:white" onclick="abrirModal()">+ Novo Produto</button>
+        <div id="lista-estoque"></div>
+    </div>
+
+    <div id="vendas-page" class="page">
+        <h2 style="margin-bottom:20px">Histórico de Vendas</h2>
+        <div id="lista-vendas"></div>
+    </div>
+
+    <div id="fiado" class="page">
+        <h2 style="margin-bottom:20px">Fiados Pendentes</h2>
+        <button class="btn-venda" style="background:var(--warning); color:white" onclick="novoFiado()">+ Registrar Fiado</button>
+        <div id="lista-fiado"></div>
+    </div>
+
+    <div id="gastos-page" class="page">
+        <h2 style="margin-bottom:20px">Gastos / Despesas</h2>
+        <button class="btn-venda" style="background:var(--danger); color:white" onclick="novaDespesa()">+ Lançar Gasto</button>
+        <div id="lista-desp"></div>
+    </div>
+
+    <div id="config" class="page">
+        <h2 style="margin-bottom:20px">Ajustes</h2>
+        <div class="item-card" style="display:block">
+            <button class="btn-confirm" style="background:#1e293b; margin-bottom:10px" onclick="exportarBackup()">Baixar Backup</button>
+            <label class="btn-confirm" style="background:#64748b; display:block; text-align:center;">
+                Importar Backup
+                <input type="file" style="display:none" onchange="importarBackup(event)">
+            </label>
+        </div>
+        <button class="btn-confirm" style="background:var(--danger); margin-top:20px" onclick="reset()">Zerar Tudo</button>
+    </div>
+
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="tab('home', this)">
+            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            Início
+        </button>
+        <button class="nav-item" onclick="tab('produtos', this)">
+            <svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path></svg>
+            Estoque
+        </button>
+        <button class="nav-item" onclick="tab('vendas-page', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
+            Vendas
+        </button>
+        <button class="nav-item" onclick="tab('fiado', this)">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            Fiados
+        </button>
+        <button class="nav-item" onclick="tab('gastos-page', this)">
+            <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+            Gastos
+        </button>
+        <button class="nav-item" onclick="tab('config', this)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H22a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Ajustes
+        </button>
+    </nav>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('lucro_facil_v17')) || { produtos: [], logs: [], fiados: [] };
+
+        function tab(id, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        }
+
+        function save() { localStorage.setItem('lucro_facil_v17', JSON.stringify(db)); render(); }
+
+        function render() {
+            const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            let fat = 0, custoTotal = 0, despesaTotal = 0;
+            
+            db.logs.forEach(l => { 
+                if(l.t === 'v') { fat += l.v; custoTotal += l.custo; } 
+                else { despesaTotal += l.v; } 
+            });
+            
+            document.getElementById('bruto-home').innerText = fmt(fat);
+            document.getElementById('desp-home').innerText = fmt(despesaTotal);
+            document.getElementById('liq-home').innerText = fmt(fat - (custoTotal + despesaTotal));
+            document.getElementById('v-count').innerText = db.logs.filter(l => l.t === 'v').length;
+            document.getElementById('p-count').innerText = db.produtos.length;
+
+            const listEstoque = document.getElementById('lista-estoque');
+            if(listEstoque) {
+                listEstoque.innerHTML = "";
+                db.produtos.forEach((p, i) => {
+                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small></div><div><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
+                });
+            }
+
+            const listFiado = document.getElementById('lista-fiado');
+            if(listFiado) {
+                listFiado.innerHTML = "";
+                db.fiados.forEach((f, i) => {
+                    listFiado.innerHTML += `<div class="item-card"><div><b>${f.cliente}</b><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="baixarFiado(${i})">PAGO</button></div></div>`;
+                });
+            }
+
+            const listVendas = document.getElementById('lista-vendas');
+            if(listVendas) {
+                listVendas.innerHTML = "";
+                db.logs.filter(l => l.t === 'v').reverse().forEach(l => {
+                    listVendas.innerHTML += `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--primary)">+ ${fmt(l.v)}</b></div>`;
+                });
+            }
+
+            const listDesp = document.getElementById('lista-desp');
+            if(listDesp) {
+                listDesp.innerHTML = "";
+                db.logs.filter(l => l.t === 'd').reverse().forEach(l => {
+                    listDesp.innerHTML += `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--danger)">- ${fmt(l.v)}</b></div>`;
+                });
+            }
+        }
+
+        function abrirModal(index = -1) {
+            const editIndex = document.getElementById('edit-index');
+            if(index > -1) {
+                const p = db.produtos[index];
+                document.getElementById('p-nome').value = p.nome;
+                document.getElementById('p-custo').value = p.custo;
+                document.getElementById('p-venda').value = p.venda;
+                document.getElementById('p-qtd').value = p.qtd;
+                editIndex.value = index;
+            } else {
+                editIndex.value = -1;
+                document.querySelectorAll('#modal input').forEach(i => i.value = "");
+            }
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function fecharModal() { document.getElementById('modal').style.display = 'none'; }
+
+        function salvarProduto() {
+            const idx = parseInt(document.getElementById('edit-index').value);
+            const p = {
+                nome: document.getElementById('p-nome').value,
+                custo: parseFloat(document.getElementById('p-custo').value) || 0,
+                venda: parseFloat(document.getElementById('p-venda').value) || 0,
+                qtd: parseInt(document.getElementById('p-qtd').value) || 0
+            };
+            if(idx > -1) db.produtos[idx] = p; else db.produtos.push(p);
+            save(); fecharModal();
+        }
+
+        function vendaRapida() {
+            if(!db.produtos.length) return alert("Cadastre produtos primeiro!");
+            let m = "Escolha o produto pelo número:\n" + db.produtos.map((p, i) => `${i} - ${p.nome}`).join("\n");
+            let i = prompt(m);
+            if(i !== null && db.produtos[i]) {
+                let p = db.produtos[i];
+                if(p.qtd <= 0) return alert("Sem estoque!");
+                p.qtd--;
+                db.logs.push({ t:'v', n: p.nome, v: p.venda, custo: p.custo, dataIso: new Date() });
+                save();
+            }
+        }
+
+        function novoFiado() {
+            const n = prompt("Nome do cliente:");
+            const v = parseFloat(prompt("Valor R$:")?.replace(',','.'));
+            const d = prompt("Data para pagar:");
+            if(n && v) { db.fiados.push({ cliente: n, valor: v, dataPagto: d }); save(); }
+        }
+
+        function baixarFiado(i) {
+            db.logs.push({ t:'v', n: 'Fiado: ' + db.fiados[i].cliente, v: db.fiados[i].valor, custo: 0, dataIso: new Date() });
+            db.fiados.splice(i, 1);
+            save();
+        }
+
+        function novaDespesa() {
+            const n = prompt("Descrição do gasto:");
+            const v = parseFloat(prompt("Valor R$:")?.replace(',','.'));
+            if(n && v) { db.logs.push({ t:'d', n: n, v: v, dataIso: new Date() }); save(); }
+        }
+
+        function exportarBackup() {
+            const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "backup_lucro.json";
+            a.click();
+        }
+
+        function importarBackup(e) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { try { db = JSON.parse(ev.target.result); save(); alert("Sucesso!"); } catch(e){alert("Erro!");} };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        function reset() { if(confirm("Apagar TUDO?")) { db = { produtos: [], logs: [], fiados: [] }; save(); } }
+
+        render();
+    </script>
+</body>
+</html>
