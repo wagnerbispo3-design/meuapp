@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v17</title>
+    <title>Lucro Fácil v17.1</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -20,7 +20,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text-main); padding-bottom: 130px; }
 
-        /* HEADER */
         .header-green {
             background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
             padding: 40px 20px 60px 20px;
@@ -34,36 +33,31 @@
 
         .container { padding: 0 20px; margin-top: -30px; }
 
-        /* BOTÕES PRINCIPAIS */
         .btn-venda {
             background: var(--card-bg); color: var(--primary); border: none; padding: 22px; border-radius: 20px;
             width: 100%; font-size: 18px; font-weight: 800; box-shadow: 0 10px 20px rgba(0,0,0,0.08);
             margin-bottom: 20px; cursor: pointer; display: block; text-align: center;
         }
 
-        /* GRID DASHBOARD */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .stat-card { background: var(--card-bg); padding: 18px; border-radius: 20px; border: 1px solid var(--border); }
         .stat-label { font-size: 11px; color: var(--text-sub); font-weight: 700; text-transform: uppercase; display: block; }
         .stat-value { font-size: 17px; font-weight: 800; margin-top: 5px; display: block; }
 
-        /* PÁGINAS */
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
         
         .item-card { background: var(--card-bg); border-radius: 18px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .btn-action { background: #f1f5f9; border: none; padding: 10px; border-radius: 12px; cursor: pointer; }
 
-        /* NAVEGAÇÃO INFERIOR */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding: 12px 0 35px 0; z-index: 100; }
         .nav-item { background: none; border: none; color: #94a3b8; font-size: 9px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: 700; }
         .nav-item.active { color: var(--primary); }
         .nav-item svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; }
 
-        /* MODAL */
         #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; }
-        input { width:100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
+        input, select { width:100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
         .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 16px; cursor: pointer; }
     </style>
 </head>
@@ -212,7 +206,7 @@
             if(listFiado) {
                 listFiado.innerHTML = "";
                 db.fiados.forEach((f, i) => {
-                    listFiado.innerHTML += `<div class="item-card"><div><b>${f.cliente}</b><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="baixarFiado(${i})">PAGO</button></div></div>`;
+                    listFiado.innerHTML += `<div class="item-card"><div><b>${f.cliente}</b><br><small>Item: ${f.item}</small><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px;background:var(--primary)" onclick="baixarFiado(${i})">PAGO</button></div></div>`;
                 });
             }
 
@@ -277,14 +271,46 @@
         }
 
         function novoFiado() {
+            if(!db.produtos.length) return alert("Cadastre produtos no estoque primeiro!");
+            
             const n = prompt("Nome do cliente:");
-            const v = parseFloat(prompt("Valor R$:")?.replace(',','.'));
-            const d = prompt("Data para pagar:");
-            if(n && v) { db.fiados.push({ cliente: n, valor: v, dataPagto: d }); save(); }
+            if(!n) return;
+
+            let m = "Escolha o produto que o cliente está levando:\n" + db.produtos.map((p, i) => `${i} - ${p.nome} (${p.qtd} un)`).join("\n");
+            let i = prompt(m);
+            
+            if(i !== null && db.produtos[i]) {
+                let p = db.produtos[i];
+                if(p.qtd <= 0) return alert("Sem estoque deste produto!");
+                
+                const d = prompt("Data prometida para pagar (ex: 05/05):");
+                
+                // Dá baixa no estoque na hora
+                p.qtd--;
+                
+                // Registra o fiado com o preço de venda e o custo (para calcular lucro depois que pagar)
+                db.fiados.push({ 
+                    cliente: n, 
+                    item: p.nome,
+                    valor: p.venda, 
+                    custo: p.custo,
+                    dataPagto: d || "Não informada"
+                }); 
+                save(); 
+                alert("Fiado registrado e estoque atualizado!");
+            }
         }
 
         function baixarFiado(i) {
-            db.logs.push({ t:'v', n: 'Fiado: ' + db.fiados[i].cliente, v: db.fiados[i].valor, custo: 0, dataIso: new Date() });
+            const f = db.fiados[i];
+            // Quando paga, entra no log de vendas para somar no lucro líquido
+            db.logs.push({ 
+                t:'v', 
+                n: 'Fiado Pago: ' + f.cliente + ' (' + f.item + ')', 
+                v: f.valor, 
+                custo: f.custo, 
+                dataIso: new Date() 
+            });
             db.fiados.splice(i, 1);
             save();
         }
