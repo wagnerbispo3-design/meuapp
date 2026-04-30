@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v17.2 - WR Acessórios</title>
+    <title>Lucro Fácil v17.3 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -28,7 +28,6 @@
             color: white;
             text-align: left;
         }
-        .header-green p { font-size: 14px; opacity: 0.9; }
         .header-green h1 { font-size: 36px; font-weight: 800; }
         .status-pill { background: rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; margin-top: 10px; }
         .dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; }
@@ -46,15 +45,12 @@
         .stat-label { font-size: 11px; color: var(--text-sub); font-weight: 700; text-transform: uppercase; display: block; }
         .stat-value { font-size: 20px; font-weight: 800; margin-top: 5px; display: block; }
 
-        /* NOVA SEÇÃO DE BRANDING */
         .branding-section {
             background: white; border-radius: 20px; padding: 20px; margin-top: 20px; 
             border: 1px solid var(--border); text-align: center;
         }
-        .logo-placeholder { font-size: 50px; color: #1e3a8a; } /* WR Azul */
-        .branding-section h2 { font-size: 16px; color: #64748b; font-weight: 600; margin-top: 10px; margin-bottom: 5px; }
-        .branding-section p { font-size: 14px; color: #64748b; margin-bottom: 10px; }
-        .branding-link { display: inline-flex; align-items: center; gap: 8px; color: #1e293b; font-size: 14px; margin-top: 10px; text-decoration: none; }
+        .logo-placeholder { font-size: 50px; color: #1e3a8a; font-weight: bold; }
+        .branding-link { display: inline-flex; align-items: center; gap: 8px; color: #1e293b; font-size: 14px; margin-top: 10px; text-decoration: none; font-weight: 600; }
         
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
@@ -69,7 +65,7 @@
 
         #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; }
-        input, select { width:100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
+        input { width:100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
         .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 16px; cursor: pointer; }
     </style>
 </head>
@@ -90,7 +86,7 @@
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
             <p>Saldo em caixa 💰</p>
-            <h1 id="liq-home">-R$ 0,00</h1>
+            <h1 id="liq-home">R$ 0,00</h1>
             <div class="status-pill"><div class="dot"></div> Operação Ativa</div>
         </div>
         <div class="container">
@@ -116,20 +112,12 @@
 
             <div class="branding-section">
                 <div class="logo-placeholder">WR</div>
-                <h2>WR ACESSÓRIOS MOBILE</h2>
-                <p>O seu especialista em tecnologia mobile</p>
-                
-                <a href="https://instagram.com/wracessoriosmobile" class="branding-link" target="_blank">
-                    <svg style="width:16px;height:16px" fill="#1e293b" viewBox="0 0 24 24"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 2A3.75 3.75 0 0 0 4 7.75v8.5A3.75 3.75 0 0 0 7.75 20h8.5A3.75 3.75 0 0 0 20 16.25v-8.5A3.75 3.75 0 0 0 16.25 4zm4.25 4A4 4 0 1 1 12 16a4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4.5-1.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
-                    @wracessoriosmobile
-                </a>
+                <h2 style="font-size:16px; color:#1e293b; margin-top:10px">WR ACESSÓRIOS MOBILE</h2>
+                <p style="font-size:13px; color:#64748b">Especialista em tecnologia mobile</p>
+                <a href="https://instagram.com/wracessoriosmobile" class="branding-link" target="_blank">@wracessoriosmobile</a>
                 <br>
-                <a href="https://wa.me/5527997572342" class="branding-link" target="_blank">
-                    <svg style="width:16px;height:16px" fill="#1e293b" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.634 4.191 1.919 5.881l-.999 3.651 3.569-.931zm13.111-7.234c.15-.247.074-.38-.05-.494-.125-.113-.247-.247-.371-.38-.125-.113-.19-.19-.314-.31-.125-.113-.247-.113-.371 0-.125.113-.314.19-.494.31-.19.113-.38.113-.5.113-.125-.113-.125-.113-.125-.113s-.074.19-.125.31c-.05.113-.05.113-.125.247 0 .113 0 .113 0 0zm-2.001-1.243c.15-.247.074-.38-.05-.494-.125-.113-.247-.247-.371-.38-.125-.113-.19-.19-.314-.31-.125-.113-.247-.113-.371 0-.125.113-.314.19-.494.31-.19.113-.38.113-.5.113-.125-.113-.125-.113-.125-.113s-.074.19-.125.31c-.05.113-.05.113-.125.247 0 .113 0 .113 0 0zM12.9 8.202c-.15-.38-.31-.38-.494-.38h-.31c-.19 0-.432.074-.683.31a3.003 3.003 0 00-.916 2.193c0 1.25.916 2.457 1.041 2.61.125.15 1.764 2.825 4.35 3.849.613.247 1.091.38 1.464.494.613.19 1.164.15 1.588.074.494-.074 1.588-.61 1.839-1.164.247-.5.247-.947.19-1.041-.074-.113-.247-.19-.5-.31l-1.041-.5c-.247-.113-.432-.19-.613 0-.19.19-.38.38-.5.5zm1.531 3.511c.15-.247.074-.38-.05-.494-.125-.113-.247-.247-.371-.38-.125-.113-.19-.19-.314-.31-.125-.113-.247-.113-.371 0-.125.113-.314.19-.494.31-.19.113-.38.113-.5.113-.125-.113-.125-.113-.125-.113s-.074.19-.125.31c-.05.113-.05.113-.125.247 0 .113 0 .113 0 0z"/></svg>
-                    (27) 99757-2342
-                </a>
+                <a href="https://wa.me/5527997572342" class="branding-link" target="_blank">(27) 99757-2342</a>
             </div>
-
         </div>
     </div>
 
@@ -158,45 +146,32 @@
 
     <div id="config" class="page">
         <h2 style="margin-bottom:20px">Ajustes</h2>
-        <div class="item-card" style="display:block">
-            <button class="btn-confirm" style="background:#1e293b; margin-bottom:10px" onclick="exportarBackup()">Baixar Backup</button>
-            <label class="btn-confirm" style="background:#64748b; display:block; text-align:center;">
-                Importar Backup
-                <input type="file" style="display:none" onchange="importarBackup(event)">
-            </label>
-        </div>
+        <button class="btn-confirm" style="background:#1e293b; margin-bottom:10px" onclick="exportarBackup()">Baixar Backup</button>
         <button class="btn-confirm" style="background:var(--danger); margin-top:20px" onclick="reset()">Zerar Tudo</button>
     </div>
 
     <nav class="nav-bar">
         <button class="nav-item active" onclick="tab('home', this)">
-            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            Início
+            <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Início
         </button>
         <button class="nav-item" onclick="tab('produtos', this)">
-            <svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path></svg>
-            Estoque
+            <svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18M9 21V9"></path></svg>Estoque
         </button>
         <button class="nav-item" onclick="tab('vendas-page', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>
-            Vendas
+            <svg viewBox="0 0 24 24"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>Vendas
         </button>
         <button class="nav-item" onclick="tab('fiado', this)">
-            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-            Fiados
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Fiados
         </button>
         <button class="nav-item" onclick="tab('gastos-page', this)">
-            <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
-            Gastos
+            <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>Gastos
         </button>
         <button class="nav-item" onclick="tab('config', this)">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H22a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            Ajustes
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H22a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Ajustes
         </button>
     </nav>
 
     <script>
-        // SCRIPT (Sem alterações)
         let db = JSON.parse(localStorage.getItem('lucro_facil_v17')) || { produtos: [], logs: [], fiados: [] };
 
         function tab(id, btn) {
@@ -212,12 +187,7 @@
         function render() {
             const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             let fat = 0, custoTotal = 0, despesaTotal = 0;
-            
-            db.logs.forEach(l => { 
-                if(l.t === 'v') { fat += l.v; custoTotal += l.custo; } 
-                else { despesaTotal += l.v; } 
-            });
-            
+            db.logs.forEach(l => { if(l.t === 'v') { fat += l.v; custoTotal += l.custo; } else { despesaTotal += l.v; } });
             document.getElementById('bruto-home').innerText = fmt(fat);
             document.getElementById('desp-home').innerText = fmt(despesaTotal);
             document.getElementById('liq-home').innerText = fmt(fat - (custoTotal + despesaTotal));
@@ -236,7 +206,7 @@
             if(listFiado) {
                 listFiado.innerHTML = "";
                 db.fiados.forEach((f, i) => {
-                    listFiado.innerHTML += `<div class="item-card"><div><b>${f.cliente}</b><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="baixarFiado(${i})">PAGO</button></div></div>`;
+                    listFiado.innerHTML += `<div class="item-card"><div><b>${f.cliente}</b><br><small>Item: ${f.item}</small><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="baixarFiado(${i})">PAGO</button></div></div>`;
                 });
             }
 
@@ -301,14 +271,25 @@
         }
 
         function novoFiado() {
+            if(!db.produtos.length) return alert("Cadastre produtos no estoque primeiro!");
             const n = prompt("Nome do cliente:");
-            const v = parseFloat(prompt("Valor R$:")?.replace(',','.'));
-            const d = prompt("Data para pagar:");
-            if(n && v) { db.fiados.push({ cliente: n, valor: v, dataPagto: d }); save(); }
+            if(!n) return;
+            let m = "Escolha o produto que o cliente está levando:\n" + db.produtos.map((p, i) => `${i} - ${p.nome} (${p.qtd} un)`).join("\n");
+            let i = prompt(m);
+            if(i !== null && db.produtos[i]) {
+                let p = db.produtos[i];
+                if(p.qtd <= 0) return alert("Sem estoque deste produto!");
+                const d = prompt("Data prometida para pagar (ex: 05/05):");
+                p.qtd--;
+                db.fiados.push({ cliente: n, item: p.nome, valor: p.venda, custo: p.custo, dataPagto: d || "Não informada" }); 
+                save(); 
+                alert("Fiado registrado e estoque atualizado!");
+            }
         }
 
         function baixarFiado(i) {
-            db.logs.push({ t:'v', n: 'Fiado: ' + db.fiados[i].cliente, v: db.fiados[i].valor, custo: 0, dataIso: new Date() });
+            const f = db.fiados[i];
+            db.logs.push({ t:'v', n: 'Fiado Pago: ' + f.cliente + ' (' + f.item + ')', v: f.valor, custo: f.custo, dataIso: new Date() });
             db.fiados.splice(i, 1);
             save();
         }
@@ -325,12 +306,6 @@
             a.href = URL.createObjectURL(blob);
             a.download = "backup_lucro.json";
             a.click();
-        }
-
-        function importarBackup(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { try { db = JSON.parse(ev.target.result); save(); alert("Sucesso!"); } catch(e){alert("Erro!");} };
-            reader.readAsText(e.target.files[0]);
         }
 
         function reset() { if(confirm("Apagar TUDO?")) { db = { produtos: [], logs: [], fiados: [] }; save(); } }
