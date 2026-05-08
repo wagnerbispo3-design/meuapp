@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v17.5 - WR Acessórios</title>
+    <title>Lucro Fácil v17.6 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -15,6 +15,7 @@
             --border: #e2e8f0;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --info: #3b82f6;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -58,7 +59,6 @@
         .item-card { background: var(--card-bg); border-radius: 18px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .btn-action { background: #f1f5f9; border: none; padding: 10px; border-radius: 12px; cursor: pointer; margin-left: 5px; }
 
-        /* Estilo da Margem no Card */
         .margin-badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px; }
 
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding: 10px 0 25px 0; z-index: 100; }
@@ -135,6 +135,19 @@
     <!-- GASTOS -->
     <div id="gastos-page" class="page">
         <h2 style="margin-bottom:20px">Gastos / Despesas</h2>
+        
+        <!-- RESUMO DE VALOR EM ESTOQUE -->
+        <div class="stats-grid" style="margin-bottom:15px">
+            <div class="stat-card" style="border-left: 5px solid var(--info)">
+                <span class="stat-label">Investimento (Estoque)</span>
+                <span id="invest-total" class="stat-value" style="color:var(--text-main)">R$ 0,00</span>
+            </div>
+            <div class="stat-card" style="border-left: 5px solid var(--primary)">
+                <span class="stat-label">Venda Total (Estoque)</span>
+                <span id="venda-estoque-total" class="stat-value" style="color:var(--primary)">R$ 0,00</span>
+            </div>
+        </div>
+
         <button class="btn-venda" style="background:var(--danger); color:white" onclick="novaDespesa()">+ Lançar Gasto</button>
         <div id="lista-desp"></div>
     </div>
@@ -189,24 +202,23 @@
             if(listEstoque) {
                 listEstoque.innerHTML = "";
                 db.produtos.forEach((p, i) => {
-                    // Cálculo da Margem
                     const lucroValor = p.venda - p.custo;
                     const margemPorcent = p.custo > 0 ? ((lucroValor / p.custo) * 100).toFixed(0) : 0;
-                    
-                    listEstoque.innerHTML += `
-                        <div class="item-card">
-                            <div>
-                                <b>${p.nome}</b><br>
-                                <small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br>
-                                <span class="margin-badge">Lucro: ${fmt(lucroValor)} (${margemPorcent}%)</span>
-                            </div>
-                            <div style="display:flex">
-                                <button class="btn-action" onclick="abrirModal(${i})">✏️</button>
-                                <button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button>
-                            </div>
-                        </div>`;
+                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro: ${fmt(lucroValor)} (${margemPorcent}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
                 });
             }
+
+            // Calculo de Valores Totais em Estoque para a aba Gastos
+            let somaCustoEstoque = 0;
+            let somaVendaEstoque = 0;
+            db.produtos.forEach(p => {
+                somaCustoEstoque += (p.custo * p.qtd);
+                somaVendaEstoque += (p.venda * p.qtd);
+            });
+            const invElem = document.getElementById('invest-total');
+            const vendElem = document.getElementById('venda-estoque-total');
+            if(invElem) invElem.innerText = fmt(somaCustoEstoque);
+            if(vendElem) vendElem.innerText = fmt(somaVendaEstoque);
 
             const listFiado = document.getElementById('lista-fiado');
             if(listFiado) {
