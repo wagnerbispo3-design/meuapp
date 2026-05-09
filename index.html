@@ -66,15 +66,24 @@
         .nav-item.active { color: var(--primary); }
         .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; }
 
-        #modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; }
+        /* MODAIS */
+        #modal, #modal-venda { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+        
         input { width:100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
         .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 16px; cursor: pointer; }
+
+        /* LISTA DE SELEÇÃO VISUAL */
+        .venda-item-option {
+            width: 100%; padding: 15px; background: #f8fafc; border: 1px solid var(--border);
+            border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between;
+            align-items: center; text-align: left; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <!-- MODAL PRODUTO -->
+    <!-- MODAL CADASTRO PRODUTO -->
     <div id="modal" onclick="if(event.target==this) fecharModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modal-title" style="margin-bottom:20px">Produto</h3>
@@ -87,6 +96,15 @@
         </div>
     </div>
 
+    <!-- NOVO: MODAL DE SELEÇÃO VISUAL (Substitui os Prompts de Venda/Fiado) -->
+    <div id="modal-venda" onclick="if(event.target==this) fecharModalVenda()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="venda-modal-title" style="margin-bottom:15px">Selecionar</h3>
+            <input type="text" id="searchVenda" placeholder="🔍 Buscar produto..." onkeyup="renderListaSelecao()">
+            <div id="lista-selecao-venda"></div>
+        </div>
+    </div>
+
     <!-- HOME -->
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
@@ -95,7 +113,7 @@
             <div class="status-pill"><div class="dot"></div> Operação Ativa</div>
         </div>
         <div class="container">
-            <button class="btn-venda" onclick="vendaRapida()">+ Realizar Venda</button>
+            <button class="btn-venda" onclick="abrirSelecaoVisual('venda')">+ Realizar Venda</button>
             <div class="stats-grid">
                 <div class="stat-card"><span class="stat-label">Vendas Totais</span><span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
                 <div class="stat-card"><span class="stat-label">Gastos</span><span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span></div>
@@ -128,15 +146,13 @@
     <!-- FIADOS -->
     <div id="fiado" class="page">
         <h2 style="margin-bottom:20px">Fiados Pendentes</h2>
-        <button class="btn-venda" style="background:var(--warning); color:white" onclick="novoFiado()">+ Registrar Fiado</button>
+        <button class="btn-venda" style="background:var(--warning); color:white" onclick="abrirSelecaoVisual('fiado')">+ Registrar Fiado</button>
         <div id="lista-fiado"></div>
     </div>
 
     <!-- GASTOS -->
     <div id="gastos-page" class="page">
         <h2 style="margin-bottom:20px">Gastos / Despesas</h2>
-        
-        <!-- RESUMO DE VALOR EM ESTOQUE -->
         <div class="stats-grid" style="margin-bottom:15px">
             <div class="stat-card" style="border-left: 5px solid var(--info)">
                 <span class="stat-label">Investimento (Estoque)</span>
@@ -147,7 +163,6 @@
                 <span id="venda-estoque-total" class="stat-value" style="color:var(--primary)">R$ 0,00</span>
             </div>
         </div>
-
         <button class="btn-venda" style="background:var(--danger); color:white" onclick="novaDespesa()">+ Lançar Gasto</button>
         <div id="lista-desp"></div>
     </div>
@@ -175,6 +190,7 @@
 
     <script>
         let db = JSON.parse(localStorage.getItem('lucro_facil_v17')) || { produtos: [], logs: [], fiados: [] };
+        let contextoVenda = 'venda';
 
         function tab(id, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -197,7 +213,6 @@
             document.getElementById('v-count').innerText = db.logs.filter(l => l.t === 'v').length;
             document.getElementById('p-count').innerText = db.produtos.length;
 
-            // Renderiza Lista de Estoque com Margem
             const listEstoque = document.getElementById('lista-estoque');
             if(listEstoque) {
                 listEstoque.innerHTML = "";
@@ -208,43 +223,74 @@
                 });
             }
 
-            // Calculo de Valores Totais em Estoque para a aba Gastos
-            let somaCustoEstoque = 0;
-            let somaVendaEstoque = 0;
-            db.produtos.forEach(p => {
-                somaCustoEstoque += (p.custo * p.qtd);
-                somaVendaEstoque += (p.venda * p.qtd);
-            });
-            const invElem = document.getElementById('invest-total');
-            const vendElem = document.getElementById('venda-estoque-total');
-            if(invElem) invElem.innerText = fmt(somaCustoEstoque);
-            if(vendElem) vendElem.innerText = fmt(somaVendaEstoque);
+            let somaCustoEstoque = 0, somaVendaEstoque = 0;
+            db.produtos.forEach(p => { somaCustoEstoque += (p.custo * p.qtd); somaVendaEstoque += (p.venda * p.qtd); });
+            if(document.getElementById('invest-total')) document.getElementById('invest-total').innerText = fmt(somaCustoEstoque);
+            if(document.getElementById('venda-estoque-total')) document.getElementById('venda-estoque-total').innerText = fmt(somaVendaEstoque);
 
             const listFiado = document.getElementById('lista-fiado');
             if(listFiado) {
-                listFiado.innerHTML = "";
-                db.fiados.forEach((f, i) => {
-                    listFiado.innerHTML += `<div class="item-card"><div><b>${f.cliente}</b><br><small>Item: ${f.item}</small><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="baixarFiado(${i})">PAGO</button></div></div>`;
-                });
+                listFiado.innerHTML = db.fiados.map((f, i) => `<div class="item-card"><div><b>${f.cliente}</b><br><small>Item: ${f.item}</small><br><small>Prometeu: ${f.dataPagto}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="baixarFiado(${i})">PAGO</button></div></div>`).join("");
             }
 
             const listVendas = document.getElementById('lista-vendas');
             if(listVendas) {
-                listVendas.innerHTML = "";
-                db.logs.filter(l => l.t === 'v').reverse().forEach(l => {
-                    listVendas.innerHTML += `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--primary)">+ ${fmt(l.v)}</b></div>`;
-                });
+                listVendas.innerHTML = db.logs.filter(l => l.t === 'v').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--primary)">+ ${fmt(l.v)}</b></div>`).join("");
             }
 
             const listDesp = document.getElementById('lista-desp');
             if(listDesp) {
-                listDesp.innerHTML = "";
-                db.logs.filter(l => l.t === 'd').reverse().forEach(l => {
-                    listDesp.innerHTML += `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--danger)">- ${fmt(l.v)}</b></div>`;
-                });
+                listDesp.innerHTML = db.logs.filter(l => l.t === 'd').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--danger)">- ${fmt(l.v)}</b></div>`).join("");
             }
         }
 
+        // LÓGICA DE SELEÇÃO VISUAL (SUBSTITUI PROMPT)
+        function abrirSelecaoVisual(tipo) {
+            if(!db.produtos.length) return alert("Cadastre produtos primeiro!");
+            contextoVenda = tipo;
+            document.getElementById('venda-modal-title').innerText = tipo === 'venda' ? 'Venda Rápida' : 'Novo Fiado';
+            document.getElementById('modal-venda').style.display = 'flex';
+            document.getElementById('searchVenda').value = "";
+            renderListaSelecao();
+        }
+
+        function fecharModalVenda() { document.getElementById('modal-venda').style.display = 'none'; }
+
+        function renderListaSelecao() {
+            const termo = document.getElementById('searchVenda').value.toLowerCase();
+            const lista = document.getElementById('lista-selecao-venda');
+            lista.innerHTML = "";
+            db.produtos.forEach((p, i) => {
+                if(p.nome.toLowerCase().includes(termo)) {
+                    lista.innerHTML += `
+                        <div class="venda-item-option" onclick="processarSelecao(${i})">
+                            <span><b>${p.nome}</b><br><small>Estoque: ${p.qtd}</small></span>
+                            <b style="color:var(--primary)">R$ ${p.venda.toFixed(2)}</b>
+                        </div>`;
+                }
+            });
+        }
+
+        function processarSelecao(idx) {
+            const p = db.produtos[idx];
+            if(p.qtd <= 0) return alert("Sem estoque!");
+
+            if(contextoVenda === 'venda') {
+                p.qtd--;
+                db.logs.push({ t:'v', n: p.nome, v: p.venda, custo: p.custo, dataIso: new Date() });
+                fecharModalVenda(); save();
+            } else {
+                const n = prompt("Nome do cliente:");
+                if(!n) return;
+                const d = prompt("Data prometida (ex: 05/05):");
+                p.qtd--;
+                db.fiados.push({ cliente: n, item: p.nome, valor: p.venda, custo: p.custo, dataPagto: d || "Não informada" });
+                fecharModalVenda(); save();
+                alert("Fiado registrado!");
+            }
+        }
+
+        // FUNÇÕES ORIGINAIS DE PRODUTO
         function abrirModal(index = -1) {
             const editIndex = document.getElementById('edit-index');
             if(index > -1) {
@@ -275,41 +321,10 @@
             save(); fecharModal();
         }
 
-        function vendaRapida() {
-            if(!db.produtos.length) return alert("Cadastre produtos primeiro!");
-            let m = "Escolha o produto pelo número:\n" + db.produtos.map((p, i) => `${i} - ${p.nome}`).join("\n");
-            let i = prompt(m);
-            if(i !== null && db.produtos[i]) {
-                let p = db.produtos[i];
-                if(p.qtd <= 0) return alert("Sem estoque!");
-                p.qtd--;
-                db.logs.push({ t:'v', n: p.nome, v: p.venda, custo: p.custo, dataIso: new Date() });
-                save();
-            }
-        }
-
-        function novoFiado() {
-            if(!db.produtos.length) return alert("Cadastre produtos no estoque primeiro!");
-            const n = prompt("Nome do cliente:");
-            if(!n) return;
-            let m = "Escolha o produto que o cliente está levando:\n" + db.produtos.map((p, i) => `${i} - ${p.nome} (${p.qtd} un)`).join("\n");
-            let i = prompt(m);
-            if(i !== null && db.produtos[i]) {
-                let p = db.produtos[i];
-                if(p.qtd <= 0) return alert("Sem estoque deste produto!");
-                const d = prompt("Data prometida para pagar (ex: 05/05):");
-                p.qtd--;
-                db.fiados.push({ cliente: n, item: p.nome, valor: p.venda, custo: p.custo, dataPagto: d || "Não informada" }); 
-                save(); 
-                alert("Fiado registrado e estoque atualizado!");
-            }
-        }
-
         function baixarFiado(i) {
             const f = db.fiados[i];
             db.logs.push({ t:'v', n: 'Fiado Pago: ' + f.cliente + ' (' + f.item + ')', v: f.valor, custo: f.custo, dataIso: new Date() });
-            db.fiados.splice(i, 1);
-            save();
+            db.fiados.splice(i, 1); save();
         }
 
         function novaDespesa() {
@@ -322,20 +337,13 @@
             const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "backup_lucro.json";
-            a.click();
+            a.download = "backup_lucro.json"; a.click();
         }
 
         function importarBackup(e) {
             const reader = new FileReader();
             reader.onload = (ev) => { 
-                try { 
-                    db = JSON.parse(ev.target.result); 
-                    save(); 
-                    alert("Dados importados com sucesso!"); 
-                } catch(err){
-                    alert("Erro ao ler o arquivo de backup.");
-                } 
+                try { db = JSON.parse(ev.target.result); save(); alert("Dados importados!"); } catch(err){ alert("Erro!"); } 
             };
             reader.readAsText(e.target.files[0]);
         }
