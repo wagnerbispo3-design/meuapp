@@ -28,7 +28,9 @@
             border-bottom-right-radius: 30px;
             color: white;
             text-align: left;
+            position: relative;
         }
+        .version-badge { position: absolute; top: 15px; right: 20px; font-size: 12px; opacity: 0.8; font-weight: bold; }
         .header-green h1 { font-size: 36px; font-weight: 800; }
         .status-pill { background: rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; margin-top: 10px; }
         .dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; }
@@ -60,13 +62,13 @@
         .btn-action { background: #f1f5f9; border: none; padding: 10px; border-radius: 12px; cursor: pointer; margin-left: 5px; }
 
         .margin-badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px; }
+        .rank-badge { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-bottom: 5px; display: inline-block; }
 
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding: 10px 0 25px 0; z-index: 100; }
         .nav-item { background: none; border: none; color: #94a3b8; font-size: 10px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700; }
         .nav-item.active { color: var(--primary); }
         .nav-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; }
 
-        /* MODAIS MANTIDOS E EXPANDIDOS */
         #modal, #modal-venda { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
         
@@ -79,20 +81,7 @@
             align-items: center; text-align: left; cursor: pointer;
         }
 
-        /* NOVAS CLASSES V2.1 */
-        .rank-card {
-            background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--border);
-            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .rank-number { font-size: 24px; font-weight: 800; color: var(--primary); width: 35px; }
-        .last-venda-card {
-            background: white; border-radius: 20px; border: 1px solid var(--border);
-            padding: 15px; margin-bottom: 20px; margin-top: -10px; display: none;
-        }
-        .btn-whatsapp {
-            background: #25d366; color: white; border: none; padding: 12px; border-radius: 12px;
-            width: 100%; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 10px;
-        }
+        .ranking-container { background: #fff; border-radius: 20px; padding: 15px; border: 1px solid var(--border); margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -117,90 +106,76 @@
         </div>
     </div>
 
+    <!-- HOME -->
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
+            <span class="version-badge">v2.1</span>
             <p>Saldo em caixa 💰</p>
             <h1 id="liq-home">R$ 0,00</h1>
-            <div class="status-pill"><div class="dot"></div> Operação Ativa</div>
+            <div class="status-pill"><div class="dot"></div> WR Acessórios Ativa</div>
         </div>
         <div class="container">
             <button class="btn-venda" onclick="abrirSelecaoVisual('venda')">+ Realizar Venda</button>
-            
             <div class="stats-grid">
                 <div class="stat-card"><span class="stat-label">Vendas Totais</span><span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
                 <div class="stat-card"><span class="stat-label">Gastos</span><span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span></div>
                 <div class="stat-card"><span class="stat-label">Vendas (Qtd)</span><span id="v-count" class="stat-value">0</span></div>
-                <div class="stat-card"><span class="stat-label">Produtos</span><span id="p-count" class="stat-value">0</span></div>
+                <div class="stat-card"><span class="stat-label">Estoque Itens</span><span id="p-count" class="stat-value">0</span></div>
             </div>
-
-            <div id="last-venda-container" class="last-venda-card">
-                <p class="stat-label" style="margin-bottom:8px">Última Venda</p>
-                <b><span id="last-venda-name"></span></b> - <span id="last-venda-value"></span><br>
-                <small id="last-venda-date" style="color:var(--text-sub)"></small>
-                <button class="btn-whatsapp" onclick="enviarWhatsApp()"><svg style="width:16px;height:16px;vertical-align:middle;margin-right:5px;fill:white" viewBox="0 0 24 24"><path d="M12.031 6.172c-2.202 0-3.999 1.798-3.999 3.999 0 2.202 1.798 3.999 3.999 3.999s3.999-1.798 3.999-3.999c0-2.202-1.798-3.999-3.999-3.999zm0 6.19c-1.209 0-2.191-.983-2.191-2.191 0-1.208.982-2.191 2.191-2.191 1.208 0 2.191.983 2.191 2.191 0 1.208-.983 2.191-2.191 2.191zM19.5 3h-15c-1.38 0-2.5 1.12-2.5 2.5v15c0 1.38 1.12 2.5 2.5 2.5h15c1.38 0 2.5-1.12 2.5-2.5v-15c0-1.38-1.12-2.5-2.5-2.5zm1.5 17.5c0 .276-.224.5-.5.5h-15c-.276 0-.5-.224-.5-.5v-15c0-.276.224-.5.5-.5h15c.276 0 .5.224.5.5v15z"/></svg>Enviar Recibo (WhatsApp)</button>
+            
+            <div class="ranking-container">
+                <h3 style="font-size: 14px; margin-bottom: 10px;">🏆 Mais Vendidos</h3>
+                <div id="top-produtos-list"></div>
             </div>
 
             <div class="branding-section">
                 <div class="logo-placeholder">WR</div>
                 <h2 style="font-size:16px; color:#1e293b; margin-top:10px">WR ACESSÓRIOS MOBILE</h2>
-                <p style="font-size:13px; color:#64748b">Especialista em tecnologia mobile</p>
-                <a href="https://instagram.com/wracessoriosmobile" class="branding-link" target="_blank">@wracessoriosmobile</a><br>
                 <a href="https://wa.me/5527997572342" class="branding-link" target="_blank">(27) 99757-2342</a>
             </div>
         </div>
     </div>
 
+    <!-- ESTOQUE -->
     <div id="produtos" class="page">
-        <h2 style="margin-bottom:20px">Gerenciar Estoque</h2>
+        <h2 style="margin-bottom:20px">Estoque WR</h2>
         <button class="btn-venda" style="background:var(--primary); color:white" onclick="abrirModal()">+ Novo Produto</button>
         <div id="lista-estoque"></div>
     </div>
 
+    <!-- VENDAS -->
     <div id="vendas-page" class="page">
         <h2 style="margin-bottom:20px">Histórico de Vendas</h2>
-        
-        <div style="margin-bottom:25px">
-            <p class="stat-label" style="margin-bottom:10px">Top 3 Mais Vendidos (R$)</p>
-            <div id="top-produtos">
-                <small>As vendas ainda não geraram um ranking.</small>
-            </div>
-        </div>
-
         <div id="lista-vendas"></div>
     </div>
 
+    <!-- FIADOS -->
     <div id="fiado" class="page">
         <h2 style="margin-bottom:20px">Fiados Pendentes</h2>
         <button class="btn-venda" style="background:var(--warning); color:white" onclick="abrirSelecaoVisual('fiado')">+ Registrar Fiado</button>
         <div id="lista-fiado"></div>
     </div>
 
+    <!-- GASTOS -->
     <div id="gastos-page" class="page">
-        <h2 style="margin-bottom:20px">Gastos / Despesas</h2>
-        
-        <div class="stats-grid" style="margin-bottom:15px">
-            <div class="stat-card" style="border-left: 5px solid var(--info)">
-                <span class="stat-label">Investimento (Estoque)</span>
-                <span id="invest-total" class="stat-value" style="color:var(--text-main)">R$ 0,00</span>
-            </div>
-            <div class="stat-card" style="border-left: 5px solid var(--primary)">
-                <span class="stat-label">Venda Total (Estoque)</span>
-                <span id="venda-estoque-total" class="stat-value" style="color:var(--primary)">R$ 0,00</span>
-            </div>
+        <h2 style="margin-bottom:20px">Gastos e Investimento</h2>
+        <div class="stats-grid">
+            <div class="stat-card"><span class="stat-label">Investimento</span><span id="invest-total" class="stat-value">R$ 0,00</span></div>
+            <div class="stat-card"><span class="stat-label">Potencial Venda</span><span id="venda-estoque-total" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
         </div>
-
         <button class="btn-venda" style="background:var(--danger); color:white" onclick="novaDespesa()">+ Lançar Gasto</button>
         <div id="lista-desp"></div>
     </div>
 
+    <!-- AJUSTES -->
     <div id="config" class="page">
-        <h2 style="margin-bottom:20px">Ajustes</h2>
+        <h2 style="margin-bottom:20px">Configurações</h2>
         <button class="btn-confirm" style="background:#1e293b; margin-bottom:10px" onclick="exportarBackup()">Baixar Backup</button>
         <label class="btn-confirm" style="background:#64748b; display:block; text-align:center; margin-bottom:10px">
             Importar Backup
             <input type="file" style="display:none" onchange="importarBackup(event)">
         </label>
-        <button class="btn-confirm" style="background:var(--danger); margin-top:20px" onclick="reset()">Zerar Tudo</button>
+        <button class="btn-confirm" style="background:var(--danger); margin-top:20px" onclick="reset()">Zerar Todo Sistema</button>
     </div>
 
     <nav class="nav-bar">
@@ -209,4 +184,178 @@
         <button class="nav-item" onclick="tab('vendas-page', this)"><svg viewBox="0 0 24 24"><path d="M12 20v-6M6 20V10M18 20V4"></path></svg>Vendas</button>
         <button class="nav-item" onclick="tab('fiado', this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>Fiados</button>
         <button class="nav-item" onclick="tab('gastos-page', this)"><svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>Gastos</button>
-        <button class="nav-item" onclick="tab('config', this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0
+        <button class="nav-item" onclick="tab('config', this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H22a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+    </nav>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('lucro_facil_v21')) || { produtos: [], logs: [], fiados: [] };
+        let contextoVenda = 'venda';
+
+        function tab(id, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
+        }
+
+        function save() { localStorage.setItem('lucro_facil_v21', JSON.stringify(db)); render(); }
+
+        function render() {
+            const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            let fat = 0, custoTotal = 0, despesaTotal = 0;
+            db.logs.forEach(l => { if(l.t === 'v') { fat += l.v; custoTotal += l.custo; } else { despesaTotal += l.v; } });
+            
+            document.getElementById('bruto-home').innerText = fmt(fat);
+            document.getElementById('desp-home').innerText = fmt(despesaTotal);
+            document.getElementById('liq-home').innerText = fmt(fat - (custoTotal + despesaTotal));
+            document.getElementById('v-count').innerText = db.logs.filter(l => l.t === 'v').length;
+            document.getElementById('p-count').innerText = db.produtos.length;
+
+            // Ranking Mais Vendidos
+            const rankMap = {};
+            db.logs.filter(l => l.t === 'v').forEach(l => { rankMap[l.n] = (rankMap[l.n] || 0) + 1; });
+            const topProdutos = Object.entries(rankMap).sort((a,b) => b[1] - a[1]).slice(0,3);
+            const topList = document.getElementById('top-produtos-list');
+            topList.innerHTML = topProdutos.length ? topProdutos.map(([nome, qtd], i) => `<div><span class="rank-badge">${i+1}º LUGAR</span> <b>${nome}</b> (${qtd} un)</div>`).join("") : "Nenhuma venda ainda.";
+
+            const listEstoque = document.getElementById('lista-estoque');
+            if(listEstoque) {
+                listEstoque.innerHTML = "";
+                db.produtos.forEach((p, i) => {
+                    const lucroValor = p.venda - p.custo;
+                    const margem = p.custo > 0 ? ((lucroValor / p.custo) * 100).toFixed(0) : 0;
+                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro: ${fmt(lucroValor)} (${margem}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
+                });
+            }
+
+            let somaCusto = 0, somaVenda = 0;
+            db.produtos.forEach(p => { somaCusto += (p.custo * p.qtd); somaVenda += (p.venda * p.qtd); });
+            if(document.getElementById('invest-total')) document.getElementById('invest-total').innerText = fmt(somaCusto);
+            if(document.getElementById('venda-estoque-total')) document.getElementById('venda-estoque-total').innerText = fmt(somaVenda);
+
+            const listFiado = document.getElementById('lista-fiado');
+            if(listFiado) {
+                listFiado.innerHTML = db.fiados.map((f, i) => `<div class="item-card"><div><b>${f.cliente}</b><br><small>Item: ${f.item}</small></div><div style="text-align:right"><b>${fmt(f.valor)}</b><br><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px" onclick="gerarRecibo('${f.cliente}', '${f.item}', ${f.valor})">WhatsApp</button><button class="btn-confirm" style="padding:5px;font-size:10px;margin-top:5px;background:var(--primary)" onclick="baixarFiado(${i})">PAGO</button></div></div>`).join("");
+            }
+
+            const listVendas = document.getElementById('lista-vendas');
+            if(listVendas) {
+                listVendas.innerHTML = db.logs.filter(l => l.t === 'v').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><div style="text-align:right"><b style="color:var(--primary)">+ ${fmt(l.v)}</b><br><button onclick="gerarRecibo('Cliente', '${l.n}', ${l.v})" style="border:none; background:none; color:var(--info); font-size:11px; font-weight:bold; cursor:pointer">WhatsApp</button></div></div>`).join("");
+            }
+
+            const listDesp = document.getElementById('lista-desp');
+            if(listDesp) {
+                listDesp.innerHTML = db.logs.filter(l => l.t === 'd').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--danger)">- ${fmt(l.v)}</b></div>`).join("");
+            }
+        }
+
+        function abrirSelecaoVisual(tipo) {
+            if(!db.produtos.length) return alert("Cadastre produtos primeiro!");
+            contextoVenda = tipo;
+            document.getElementById('venda-modal-title').innerText = tipo === 'venda' ? 'Venda Rápida' : 'Novo Fiado';
+            document.getElementById('modal-venda').style.display = 'flex';
+            document.getElementById('searchVenda').value = "";
+            renderListaSelecao();
+        }
+
+        function fecharModalVenda() { document.getElementById('modal-venda').style.display = 'none'; }
+
+        function renderListaSelecao() {
+            const termo = document.getElementById('searchVenda').value.toLowerCase();
+            const lista = document.getElementById('lista-selecao-venda');
+            lista.innerHTML = "";
+            db.produtos.forEach((p, i) => {
+                if(p.nome.toLowerCase().includes(termo)) {
+                    lista.innerHTML += `<div class="venda-item-option" onclick="processarSelecao(${i})"><span><b>${p.nome}</b><br><small>Estoque: ${p.qtd}</small></span><b style="color:var(--primary)">R$ ${p.venda.toFixed(2)}</b></div>`;
+                }
+            });
+        }
+
+        function processarSelecao(idx) {
+            const p = db.produtos[idx];
+            if(p.qtd <= 0) return alert("Sem estoque!");
+            if(contextoVenda === 'venda') {
+                p.qtd--;
+                db.logs.push({ t:'v', n: p.nome, v: p.venda, custo: p.custo, dataIso: new Date() });
+                save(); fecharModalVenda();
+                if(confirm("Venda realizada! Gerar recibo no WhatsApp?")) gerarRecibo("Cliente", p.nome, p.venda);
+            } else {
+                const n = prompt("Nome do cliente:");
+                if(!n) return;
+                p.qtd--;
+                db.fiados.push({ cliente: n, item: p.nome, valor: p.venda, custo: p.custo, dataPagto: 'Pend' });
+                save(); fecharModalVenda();
+                if(confirm("Fiado registrado! Enviar aviso ao cliente?")) gerarRecibo(n, p.nome, p.venda, true);
+            }
+        }
+
+        function gerarRecibo(cliente, item, valor, isFiado = false) {
+            const saudacao = isFiado ? "Aviso de Fiado" : "Recibo de Compra";
+            const msg = `*WR ACESSÓRIOS MOBILE*%0A---%0A*${saudacao}*%0A%0AOlá, ${cliente}!%0AItem: ${item}%0AValor: R$ ${valor.toFixed(2)}%0A---%0A_Obrigado pela preferência!_`;
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
+        }
+
+        function abrirModal(index = -1) {
+            const editIndex = document.getElementById('edit-index');
+            if(index > -1) {
+                const p = db.produtos[index];
+                document.getElementById('p-nome').value = p.nome;
+                document.getElementById('p-custo').value = p.custo;
+                document.getElementById('p-venda').value = p.venda;
+                document.getElementById('p-qtd').value = p.qtd;
+                editIndex.value = index;
+            } else {
+                editIndex.value = -1;
+                document.querySelectorAll('#modal input').forEach(i => i.value = "");
+            }
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function fecharModal() { document.getElementById('modal').style.display = 'none'; }
+
+        function salvarProduto() {
+            const idx = parseInt(document.getElementById('edit-index').value);
+            const p = {
+                nome: document.getElementById('p-nome').value,
+                custo: parseFloat(document.getElementById('p-custo').value) || 0,
+                venda: parseFloat(document.getElementById('p-venda').value) || 0,
+                qtd: parseInt(document.getElementById('p-qtd').value) || 0
+            };
+            if(idx > -1) db.produtos[idx] = p; else db.produtos.push(p);
+            save(); fecharModal();
+        }
+
+        function baixarFiado(i) {
+            const f = db.fiados[i];
+            db.logs.push({ t:'v', n: 'Fiado Pago: ' + f.cliente + ' (' + f.item + ')', v: f.valor, custo: f.custo, dataIso: new Date() });
+            db.fiados.splice(i, 1); save();
+        }
+
+        function novaDespesa() {
+            const n = prompt("Descrição do gasto:");
+            const v = parseFloat(prompt("Valor R$:")?.replace(',','.'));
+            if(n && v) { db.logs.push({ t:'d', n: n, v: v, dataIso: new Date() }); save(); }
+        }
+
+        function exportarBackup() {
+            const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "backup_wr_v21.json"; a.click();
+        }
+
+        function importarBackup(e) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { 
+                try { db = JSON.parse(ev.target.result); save(); alert("Dados importados!"); } catch(err){ alert("Erro!"); } 
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        function reset() { if(confirm("Apagar TUDO?")) { db = { produtos: [], logs: [], fiados: [] }; save(); } }
+
+        render();
+    </script>
+</body>
+</html>
