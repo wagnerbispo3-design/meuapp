@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v2.2 - WR Acessórios</title>
+    <title>Lucro Fácil v2.3 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -112,7 +112,7 @@
 
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
-            <span class="version-badge">v2.2</span>
+            <span class="version-badge">v2.3</span>
             <p>Saldo em conta (Empresa) 💰</p>
             <h1 id="liq-home">R$ 0,00</h1>
             <div class="status-pill"><div class="dot"></div> WR Acessórios Ativa</div>
@@ -173,6 +173,8 @@
             Importar Backup
             <input type="file" style="display:none" onchange="importarBackup(event)">
         </label>
+        <button class="btn-confirm" style="background:var(--warning); color:white; margin-top:10px" onclick="limparVendas()">Limpar Histórico de Vendas</button>
+        
         <button class="btn-confirm" style="background:var(--danger); margin-top:20px" onclick="reset()">Zerar Todo Sistema</button>
     </div>
 
@@ -210,7 +212,6 @@
             
             document.getElementById('bruto-home').innerText = fmt(fat);
             document.getElementById('desp-home').innerText = fmt(despesaTotal);
-            // Saldo é o que entrou menos o que saiu (despesas e investimentos em estoque)
             document.getElementById('liq-home').innerText = fmt(fat - despesaTotal);
             document.getElementById('v-count').innerText = db.logs.filter(l => l.t === 'v').length;
             
@@ -308,7 +309,7 @@
                 document.getElementById('p-nome').value = p.nome;
                 document.getElementById('p-custo').value = p.custo;
                 document.getElementById('p-venda').value = p.venda;
-                document.getElementById('p-qtd').value = 0; // Ao editar, coloca 0 para adicionar o que chegou
+                document.getElementById('p-qtd').value = 0; 
                 editIndex.value = index;
                 document.getElementById('modal-title').innerText = "Reposição: " + p.nome;
             } else {
@@ -329,17 +330,14 @@
             const qtdAdicional = parseInt(document.getElementById('p-qtd').value) || 0;
 
             if(idx > -1) {
-                // Atualiza produto e soma nova quantidade
                 db.produtos[idx].nome = nome;
                 db.produtos[idx].custo = custo;
                 db.produtos[idx].venda = venda;
                 db.produtos[idx].qtd += qtdAdicional;
             } else {
-                // Novo produto
                 db.produtos.push({ nome, custo, venda, qtd: qtdAdicional });
             }
 
-            // Registra o investimento como saída do caixa
             const custoTotalInvestido = custo * qtdAdicional;
             if(custoTotalInvestido > 0) {
                 db.logs.push({ t:'d', n: 'Invest. Estoque: ' + nome + ' (' + qtdAdicional + 'un)', v: custoTotalInvestido, dataIso: new Date() });
@@ -360,11 +358,20 @@
             if(n && v) { db.logs.push({ t:'d', n: n, v: v, dataIso: new Date() }); save(); }
         }
 
+        // NOVA FUNÇÃO: LIMPAR VENDAS
+        function limparVendas() {
+            if(confirm("Deseja realmente limpar todo o histórico de vendas? Isso não afetará seu estoque ou gastos.")) {
+                db.logs = db.logs.filter(l => l.t !== 'v');
+                save();
+                alert("Histórico de vendas removido!");
+            }
+        }
+
         function exportarBackup() {
             const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "backup_wr_v22.json"; a.click();
+            a.download = "backup_wr_v23.json"; a.click();
         }
 
         function importarBackup(e) {
@@ -375,7 +382,7 @@
             reader.readAsText(e.target.files[0]);
         }
 
-        function reset() { if(confirm("Apagar TUDO?")) { db = { produtos: [], logs: [], fiados: [] }; save(); } }
+        function reset() { if(confirm("Apagar TUDO? Isso removerá estoque, vendas e gastos.")) { db = { produtos: [], logs: [], fiados: [] }; save(); } }
 
         render();
     </script>
