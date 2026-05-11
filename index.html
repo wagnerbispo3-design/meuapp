@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v2.3 - WR Acessórios</title>
+    <title>Lucro Fácil v2.4 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -112,7 +112,7 @@
 
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
-            <span class="version-badge">v2.3</span>
+            <span class="version-badge">v2.4</span>
             <p>Saldo em conta (Empresa) 💰</p>
             <h1 id="liq-home">R$ 0,00</h1>
             <div class="status-pill"><div class="dot"></div> WR Acessórios Ativa</div>
@@ -173,7 +173,6 @@
             Importar Backup
             <input type="file" style="display:none" onchange="importarBackup(event)">
         </label>
-        <button class="btn-confirm" style="background:var(--warning); color:white; margin-top:10px" onclick="limparVendas()">Limpar Histórico de Vendas</button>
         
         <button class="btn-confirm" style="background:var(--danger); margin-top:20px" onclick="reset()">Zerar Todo Sistema</button>
     </div>
@@ -247,12 +246,14 @@
 
             const listVendas = document.getElementById('lista-vendas');
             if(listVendas) {
-                listVendas.innerHTML = db.logs.filter(l => l.t === 'v').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><div style="text-align:right"><b style="color:var(--primary)">+ ${fmt(l.v)}</b><br><button onclick="gerarRecibo('Cliente', '${l.n}', ${l.v})" style="border:none; background:none; color:var(--info); font-size:11px; font-weight:bold; cursor:pointer">WhatsApp</button></div></div>`).join("");
+                listVendas.innerHTML = db.logs.map((l, i) => ({...l, originalIdx: i}))
+                    .filter(l => l.t === 'v').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><div style="text-align:right"><b style="color:var(--primary)">+ ${fmt(l.v)}</b><br><button onclick="gerarRecibo('Cliente', '${l.n}', ${l.v})" style="border:none; background:none; color:var(--info); font-size:11px; font-weight:bold; cursor:pointer">WhatsApp</button> <button onclick="removerLog(${l.originalIdx})" style="border:none; background:none; color:var(--danger); font-size:11px; cursor:pointer">🗑️</button></div></div>`).join("");
             }
 
             const listDesp = document.getElementById('lista-desp');
             if(listDesp) {
-                listDesp.innerHTML = db.logs.filter(l => l.t === 'd').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><b style="color:var(--danger)">- ${fmt(l.v)}</b></div>`).join("");
+                listDesp.innerHTML = db.logs.map((l, i) => ({...l, originalIdx: i}))
+                    .filter(l => l.t === 'd').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><div style="text-align:right"><b style="color:var(--danger)">- ${fmt(l.v)}</b><br><button onclick="removerLog(${l.originalIdx})" style="border:none; background:none; color:var(--danger); font-size:11px; cursor:pointer">🗑️ Remover</button></div></div>`).join("");
             }
         }
 
@@ -358,12 +359,11 @@
             if(n && v) { db.logs.push({ t:'d', n: n, v: v, dataIso: new Date() }); save(); }
         }
 
-        // NOVA FUNÇÃO: LIMPAR VENDAS
-        function limparVendas() {
-            if(confirm("Deseja realmente limpar todo o histórico de vendas? Isso não afetará seu estoque ou gastos.")) {
-                db.logs = db.logs.filter(l => l.t !== 'v');
+        // NOVA FUNÇÃO: REMOVER ITEM INDIVIDUAL DO LOG (VENDA OU GASTO)
+        function removerLog(index) {
+            if(confirm("Deseja remover este registro? O saldo será recalculado.")) {
+                db.logs.splice(index, 1);
                 save();
-                alert("Histórico de vendas removido!");
             }
         }
 
@@ -371,7 +371,7 @@
             const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "backup_wr_v23.json"; a.click();
+            a.download = "backup_wr_v24.json"; a.click();
         }
 
         function importarBackup(e) {
