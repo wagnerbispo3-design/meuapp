@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v2.1 - WR Acessórios</title>
+    <title>Lucro Fácil v2.2 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -21,7 +21,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text-main); padding-bottom: 110px; }
 
-        /* AJUSTE CABEÇALHO: Aumentei o padding bottom para não cobrir o botão */
         .header-green {
             background: #22c55e;
             padding: 40px 20px 80px 20px;
@@ -36,7 +35,6 @@
         .status-pill { background: rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; margin-top: 10px; }
         .dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; }
 
-        /* AJUSTE CONTAINER: Margem negativa controlada para o botão aparecer */
         .container { padding: 0 15px; margin-top: -40px; position: relative; z-index: 10; }
 
         .btn-venda {
@@ -66,7 +64,6 @@
         .margin-badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px; }
         .rank-badge { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-bottom: 5px; display: inline-block; }
 
-        /* AJUSTE NAV BAR: Padronizei o tamanho dos ícones incluindo o de Ajustes */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); display: flex; padding: 10px 0 25px 0; z-index: 100; }
         .nav-item { background: none; border: none; color: #94a3b8; font-size: 10px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700; }
         .nav-item.active { color: var(--primary); }
@@ -93,11 +90,15 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modal-title" style="margin-bottom:20px">Produto</h3>
             <input type="hidden" id="edit-index">
+            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 5px;">Nome:</p>
             <input type="text" id="p-nome" placeholder="Nome do Produto">
+            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 5px;">Custo Unitário (R$):</p>
             <input type="number" id="p-custo" placeholder="Custo R$">
+            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 5px;">Venda Unitária (R$):</p>
             <input type="number" id="p-venda" placeholder="Venda R$">
+            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 5px;">Qtd a adicionar:</p>
             <input type="number" id="p-qtd" placeholder="Quantidade em Estoque">
-            <button class="btn-confirm" onclick="salvarProduto()">Salvar Produto</button>
+            <button class="btn-confirm" onclick="salvarProduto()">Salvar e abater do Caixa</button>
         </div>
     </div>
 
@@ -111,18 +112,18 @@
 
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
-            <span class="version-badge">v2.1</span>
-            <p>Saldo em caixa 💰</p>
+            <span class="version-badge">v2.2</span>
+            <p>Saldo em conta (Empresa) 💰</p>
             <h1 id="liq-home">R$ 0,00</h1>
             <div class="status-pill"><div class="dot"></div> WR Acessórios Ativa</div>
         </div>
         <div class="container">
             <button class="btn-venda" onclick="abrirSelecaoVisual('venda')">+ Realizar Venda</button>
             <div class="stats-grid">
-                <div class="stat-card"><span class="stat-label">Vendas Totais</span><span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
-                <div class="stat-card"><span class="stat-label">Gastos</span><span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span></div>
+                <div class="stat-card"><span class="stat-label">Vendas Brutas</span><span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
+                <div class="stat-card"><span class="stat-label">Total Gasto/Invest.</span><span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span></div>
                 <div class="stat-card"><span class="stat-label">Vendas (Qtd)</span><span id="v-count" class="stat-value">0</span></div>
-                <div class="stat-card"><span class="stat-label">Estoque Itens</span><span id="p-count" class="stat-value">0</span></div>
+                <div class="stat-card"><span class="stat-label">Estoque Total</span><span id="p-count" class="stat-value">0</span></div>
             </div>
             
             <div class="ranking-container">
@@ -156,12 +157,12 @@
     </div>
 
     <div id="gastos-page" class="page">
-        <h2 style="margin-bottom:20px">Gastos e Investimento</h2>
+        <h2 style="margin-bottom:20px">Saídas e Investimentos</h2>
         <div class="stats-grid">
-            <div class="stat-card"><span class="stat-label">Investimento</span><span id="invest-total" class="stat-value">R$ 0,00</span></div>
+            <div class="stat-card"><span class="stat-label">Custo do Estoque</span><span id="invest-total" class="stat-value">R$ 0,00</span></div>
             <div class="stat-card"><span class="stat-label">Potencial Venda</span><span id="venda-estoque-total" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
         </div>
-        <button class="btn-venda" style="background:var(--danger); color:white" onclick="novaDespesa()">+ Lançar Gasto</button>
+        <button class="btn-venda" style="background:var(--danger); color:white" onclick="novaDespesa()">+ Lançar Gasto Extra</button>
         <div id="lista-desp"></div>
     </div>
 
@@ -200,14 +201,22 @@
 
         function render() {
             const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            let fat = 0, custoTotal = 0, despesaTotal = 0;
-            db.logs.forEach(l => { if(l.t === 'v') { fat += l.v; custoTotal += l.custo; } else { despesaTotal += l.v; } });
+            let fat = 0, despesaTotal = 0;
+            
+            db.logs.forEach(l => { 
+                if(l.t === 'v') fat += l.v; 
+                if(l.t === 'd') despesaTotal += l.v; 
+            });
             
             document.getElementById('bruto-home').innerText = fmt(fat);
             document.getElementById('desp-home').innerText = fmt(despesaTotal);
-            document.getElementById('liq-home').innerText = fmt(fat - (custoTotal + despesaTotal));
+            // Saldo é o que entrou menos o que saiu (despesas e investimentos em estoque)
+            document.getElementById('liq-home').innerText = fmt(fat - despesaTotal);
             document.getElementById('v-count').innerText = db.logs.filter(l => l.t === 'v').length;
-            document.getElementById('p-count').innerText = db.produtos.length;
+            
+            let totalItens = 0;
+            db.produtos.forEach(p => totalItens += p.qtd);
+            document.getElementById('p-count').innerText = totalItens;
 
             const rankMap = {};
             db.logs.filter(l => l.t === 'v').forEach(l => { rankMap[l.n] = (rankMap[l.n] || 0) + 1; });
@@ -221,7 +230,7 @@
                 db.produtos.forEach((p, i) => {
                     const lucroValor = p.venda - p.custo;
                     const margem = p.custo > 0 ? ((lucroValor / p.custo) * 100).toFixed(0) : 0;
-                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro: ${fmt(lucroValor)} (${margem}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
+                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro unitário: ${fmt(lucroValor)} (${margem}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
                 });
             }
 
@@ -299,10 +308,12 @@
                 document.getElementById('p-nome').value = p.nome;
                 document.getElementById('p-custo').value = p.custo;
                 document.getElementById('p-venda').value = p.venda;
-                document.getElementById('p-qtd').value = p.qtd;
+                document.getElementById('p-qtd').value = 0; // Ao editar, coloca 0 para adicionar o que chegou
                 editIndex.value = index;
+                document.getElementById('modal-title').innerText = "Reposição: " + p.nome;
             } else {
                 editIndex.value = -1;
+                document.getElementById('modal-title').innerText = "Novo Produto";
                 document.querySelectorAll('#modal input').forEach(i => i.value = "");
             }
             document.getElementById('modal').style.display = 'flex';
@@ -312,13 +323,28 @@
 
         function salvarProduto() {
             const idx = parseInt(document.getElementById('edit-index').value);
-            const p = {
-                nome: document.getElementById('p-nome').value,
-                custo: parseFloat(document.getElementById('p-custo').value) || 0,
-                venda: parseFloat(document.getElementById('p-venda').value) || 0,
-                qtd: parseInt(document.getElementById('p-qtd').value) || 0
-            };
-            if(idx > -1) db.produtos[idx] = p; else db.produtos.push(p);
+            const nome = document.getElementById('p-nome').value;
+            const custo = parseFloat(document.getElementById('p-custo').value) || 0;
+            const venda = parseFloat(document.getElementById('p-venda').value) || 0;
+            const qtdAdicional = parseInt(document.getElementById('p-qtd').value) || 0;
+
+            if(idx > -1) {
+                // Atualiza produto e soma nova quantidade
+                db.produtos[idx].nome = nome;
+                db.produtos[idx].custo = custo;
+                db.produtos[idx].venda = venda;
+                db.produtos[idx].qtd += qtdAdicional;
+            } else {
+                // Novo produto
+                db.produtos.push({ nome, custo, venda, qtd: qtdAdicional });
+            }
+
+            // Registra o investimento como saída do caixa
+            const custoTotalInvestido = custo * qtdAdicional;
+            if(custoTotalInvestido > 0) {
+                db.logs.push({ t:'d', n: 'Invest. Estoque: ' + nome + ' (' + qtdAdicional + 'un)', v: custoTotalInvestido, dataIso: new Date() });
+            }
+
             save(); fecharModal();
         }
 
@@ -329,7 +355,7 @@
         }
 
         function novaDespesa() {
-            const n = prompt("Descrição do gasto:");
+            const n = prompt("Descrição do gasto (Ex: Almoço, Passagem):");
             const v = parseFloat(prompt("Valor R$:")?.replace(',','.'));
             if(n && v) { db.logs.push({ t:'d', n: n, v: v, dataIso: new Date() }); save(); }
         }
@@ -338,7 +364,7 @@
             const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "backup_wr_v21.json"; a.click();
+            a.download = "backup_wr_v22.json"; a.click();
         }
 
         function importarBackup(e) {
