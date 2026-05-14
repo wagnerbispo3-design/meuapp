@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v2.4 - WR Acessórios</title>
+    <title>Lucro Fácil v2.5 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -110,9 +110,10 @@
         </div>
     </div>
 
+    <!-- HOME -->
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
-            <span class="version-badge">v2.4</span>
+            <span class="version-badge">v2.5</span>
             <p>Saldo em conta (Empresa) 💰</p>
             <h1 id="liq-home">R$ 0,00</h1>
             <div class="status-pill"><div class="dot"></div> WR Acessórios Ativa</div>
@@ -139,23 +140,27 @@
         </div>
     </div>
 
+    <!-- ESTOQUE -->
     <div id="produtos" class="page">
         <h2 style="margin-bottom:20px">Estoque WR</h2>
         <button class="btn-venda" style="background:var(--primary); color:white" onclick="abrirModal()">+ Novo Produto</button>
         <div id="lista-estoque"></div>
     </div>
 
+    <!-- VENDAS -->
     <div id="vendas-page" class="page">
         <h2 style="margin-bottom:20px">Histórico de Vendas</h2>
         <div id="lista-vendas"></div>
     </div>
 
+    <!-- FIADOS -->
     <div id="fiado" class="page">
         <h2 style="margin-bottom:20px">Fiados Pendentes</h2>
         <button class="btn-venda" style="background:var(--warning); color:white" onclick="abrirSelecaoVisual('fiado')">+ Registrar Fiado</button>
         <div id="lista-fiado"></div>
     </div>
 
+    <!-- GASTOS -->
     <div id="gastos-page" class="page">
         <h2 style="margin-bottom:20px">Saídas e Investimentos</h2>
         <div class="stats-grid">
@@ -166,6 +171,7 @@
         <div id="lista-desp"></div>
     </div>
 
+    <!-- AJUSTES -->
     <div id="config" class="page">
         <h2 style="margin-bottom:20px">Configurações</h2>
         <button class="btn-confirm" style="background:#1e293b; margin-bottom:10px" onclick="exportarBackup()">Baixar Backup</button>
@@ -187,6 +193,7 @@
     </nav>
 
     <script>
+        // Versão 2.5 - Estorno de estoque e Frete embutido
         let db = JSON.parse(localStorage.getItem('lucro_facil_v21')) || { produtos: [], logs: [], fiados: [] };
         let contextoVenda = 'venda';
 
@@ -230,7 +237,7 @@
                 db.produtos.forEach((p, i) => {
                     const lucroValor = p.venda - p.custo;
                     const margem = p.custo > 0 ? ((lucroValor / p.custo) * 100).toFixed(0) : 0;
-                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro unitário: ${fmt(lucroValor)} (${margem}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
+                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro unitário: ${fmt(lucroValor)} (${margem}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover do catálogo?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
                 });
             }
 
@@ -247,7 +254,7 @@
             const listVendas = document.getElementById('lista-vendas');
             if(listVendas) {
                 listVendas.innerHTML = db.logs.map((l, i) => ({...l, originalIdx: i}))
-                    .filter(l => l.t === 'v').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><div style="text-align:right"><b style="color:var(--primary)">+ ${fmt(l.v)}</b><br><button onclick="gerarRecibo('Cliente', '${l.n}', ${l.v})" style="border:none; background:none; color:var(--info); font-size:11px; font-weight:bold; cursor:pointer">WhatsApp</button> <button onclick="removerLog(${l.originalIdx})" style="border:none; background:none; color:var(--danger); font-size:11px; cursor:pointer">🗑️</button></div></div>`).join("");
+                    .filter(l => l.t === 'v').reverse().map(l => `<div class="item-card"><div><b>${l.n}</b><br><small>${new Date(l.dataIso).toLocaleDateString()}</small></div><div style="text-align:right"><b style="color:var(--primary)">+ ${fmt(l.v)}</b><br><button onclick="gerarRecibo('Cliente', '${l.n}', ${l.v})" style="border:none; background:none; color:var(--info); font-size:11px; font-weight:bold; cursor:pointer">WhatsApp</button> <button onclick="removerVenda(${l.originalIdx})" style="border:none; background:none; color:var(--danger); font-size:11px; cursor:pointer">🗑️ Estornar</button></div></div>`).join("");
             }
 
             const listDesp = document.getElementById('lista-desp');
@@ -282,9 +289,20 @@
         function processarSelecao(idx) {
             const p = db.produtos[idx];
             if(p.qtd <= 0) return alert("Sem estoque!");
+            
             if(contextoVenda === 'venda') {
+                // Pergunta do Frete
+                const frete = parseFloat(prompt("Custo de frete/entrega para esta venda? (Deixe 0 se não houver)")?.replace(',','.'));
+                
                 p.qtd--;
+                // Log da Venda
                 db.logs.push({ t:'v', n: p.nome, v: p.venda, custo: p.custo, dataIso: new Date() });
+                
+                // Log do Frete (se houver)
+                if(frete > 0) {
+                    db.logs.push({ t:'d', n: 'Entrega: ' + p.nome, v: frete, dataIso: new Date() });
+                }
+
                 save(); fecharModalVenda();
                 if(confirm("Venda realizada! Gerar recibo no WhatsApp?")) gerarRecibo("Cliente", p.nome, p.venda);
             } else {
@@ -294,6 +312,31 @@
                 db.fiados.push({ cliente: n, item: p.nome, valor: p.venda, custo: p.custo, dataPagto: 'Pend' });
                 save(); fecharModalVenda();
                 if(confirm("Fiado registrado! Enviar aviso ao cliente?")) gerarRecibo(n, p.nome, p.venda, true);
+            }
+        }
+
+        // NOVO: REMOVER VENDA COM ESTORNO DE ESTOQUE
+        function removerVenda(index) {
+            const log = db.logs[index];
+            if(confirm("Deseja apagar esta venda?")) {
+                const estornar = confirm("Deseja devolver 1 unidade de '" + log.n + "' ao estoque?");
+                if(estornar) {
+                    const pIdx = db.produtos.findIndex(prod => prod.nome === log.n);
+                    if(pIdx > -1) {
+                        db.produtos[pIdx].qtd += 1;
+                    } else {
+                        alert("Produto não encontrado no catálogo para estorno, mas o valor foi removido do caixa.");
+                    }
+                }
+                db.logs.splice(index, 1);
+                save();
+            }
+        }
+
+        function removerLog(index) {
+            if(confirm("Deseja remover este gasto?")) {
+                db.logs.splice(index, 1);
+                save();
             }
         }
 
@@ -341,7 +384,7 @@
 
             const custoTotalInvestido = custo * qtdAdicional;
             if(custoTotalInvestido > 0) {
-                db.logs.push({ t:'d', n: 'Invest. Estoque: ' + nome + ' (' + qtdAdicional + 'un)', v: custoTotalInvestido, dataIso: new Date() });
+                db.logs.push({ t:'d', n: 'Invest. Estoque: ' + nome, v: custoTotalInvestido, dataIso: new Date() });
             }
 
             save(); fecharModal();
@@ -359,19 +402,11 @@
             if(n && v) { db.logs.push({ t:'d', n: n, v: v, dataIso: new Date() }); save(); }
         }
 
-        // NOVA FUNÇÃO: REMOVER ITEM INDIVIDUAL DO LOG (VENDA OU GASTO)
-        function removerLog(index) {
-            if(confirm("Deseja remover este registro? O saldo será recalculado.")) {
-                db.logs.splice(index, 1);
-                save();
-            }
-        }
-
         function exportarBackup() {
             const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "backup_wr_v24.json"; a.click();
+            a.download = "backup_wr_v25.json"; a.click();
         }
 
         function importarBackup(e) {
