@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v2.5 - WR Acessórios</title>
+    <title>Lucro Fácil v2.6 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -59,7 +59,7 @@
         .page.active { display: block; }
         
         .item-card { background: var(--card-bg); border-radius: 18px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .btn-action { background: #f1f5f9; border: none; padding: 10px; border-radius: 12px; cursor: pointer; margin-left: 5px; }
+        .btn-action { background: #f1f5f9; border: none; padding: 10px; border-radius: 12px; cursor: pointer; margin-left: 5px; font-size: 14px; }
 
         .margin-badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px; }
         .rank-badge { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-bottom: 5px; display: inline-block; }
@@ -110,21 +110,20 @@
         </div>
     </div>
 
-    <!-- HOME -->
     <div id="home" class="page active" style="padding:0">
         <div class="header-green">
-            <span class="version-badge">v2.5</span>
-            <p>Saldo em conta (Empresa) 💰</p>
+            <span class="version-badge">v2.6</span>
+            <p>Saldo em caixa 💰</p>
             <h1 id="liq-home">R$ 0,00</h1>
             <div class="status-pill"><div class="dot"></div> WR Acessórios Ativa</div>
         </div>
         <div class="container">
             <button class="btn-venda" onclick="abrirSelecaoVisual('venda')">+ Realizar Venda</button>
             <div class="stats-grid">
-                <div class="stat-card"><span class="stat-label">Vendas Brutas</span><span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
-                <div class="stat-card"><span class="stat-label">Total Gasto/Invest.</span><span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span></div>
+                <div class="stat-card"><span class="stat-label">Vendas Totais</span><span id="bruto-home" class="stat-value" style="color:var(--primary)">R$ 0,00</span></div>
+                <div class="stat-card"><span class="stat-label">Gastos</span><span id="desp-home" class="stat-value" style="color:var(--danger)">R$ 0,00</span></div>
                 <div class="stat-card"><span class="stat-label">Vendas (Qtd)</span><span id="v-count" class="stat-value">0</span></div>
-                <div class="stat-card"><span class="stat-label">Estoque Total</span><span id="p-count" class="stat-value">0</span></div>
+                <div class="stat-card"><span class="stat-label">Estoque Itens</span><span id="p-count" class="stat-value">0</span></div>
             </div>
             
             <div class="ranking-container">
@@ -140,27 +139,23 @@
         </div>
     </div>
 
-    <!-- ESTOQUE -->
     <div id="produtos" class="page">
         <h2 style="margin-bottom:20px">Estoque WR</h2>
         <button class="btn-venda" style="background:var(--primary); color:white" onclick="abrirModal()">+ Novo Produto</button>
         <div id="lista-estoque"></div>
     </div>
 
-    <!-- VENDAS -->
     <div id="vendas-page" class="page">
         <h2 style="margin-bottom:20px">Histórico de Vendas</h2>
         <div id="lista-vendas"></div>
     </div>
 
-    <!-- FIADOS -->
     <div id="fiado" class="page">
         <h2 style="margin-bottom:20px">Fiados Pendentes</h2>
         <button class="btn-venda" style="background:var(--warning); color:white" onclick="abrirSelecaoVisual('fiado')">+ Registrar Fiado</button>
         <div id="lista-fiado"></div>
     </div>
 
-    <!-- GASTOS -->
     <div id="gastos-page" class="page">
         <h2 style="margin-bottom:20px">Saídas e Investimentos</h2>
         <div class="stats-grid">
@@ -171,7 +166,6 @@
         <div id="lista-desp"></div>
     </div>
 
-    <!-- AJUSTES -->
     <div id="config" class="page">
         <h2 style="margin-bottom:20px">Configurações</h2>
         <button class="btn-confirm" style="background:#1e293b; margin-bottom:10px" onclick="exportarBackup()">Baixar Backup</button>
@@ -193,7 +187,6 @@
     </nav>
 
     <script>
-        // Versão 2.5 - Estorno de estoque e Frete embutido
         let db = JSON.parse(localStorage.getItem('lucro_facil_v21')) || { produtos: [], logs: [], fiados: [] };
         let contextoVenda = 'venda';
 
@@ -206,6 +199,17 @@
         }
 
         function save() { localStorage.setItem('lucro_facil_v21', JSON.stringify(db)); render(); }
+
+        // Função para mover os produtos de posição no array
+        function moverProduto(index, direcao) {
+            const novoIndex = index + direcao;
+            if (novoIndex >= 0 && novoIndex < db.produtos.length) {
+                const temp = db.produtos[index];
+                db.produtos[index] = db.produtos[novoIndex];
+                db.produtos[novoIndex] = temp;
+                save();
+            }
+        }
 
         function render() {
             const fmt = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -237,7 +241,20 @@
                 db.produtos.forEach((p, i) => {
                     const lucroValor = p.venda - p.custo;
                     const margem = p.custo > 0 ? ((lucroValor / p.custo) * 100).toFixed(0) : 0;
-                    listEstoque.innerHTML += `<div class="item-card"><div><b>${p.nome}</b><br><small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br><span class="margin-badge">Lucro unitário: ${fmt(lucroValor)} (${margem}%)</span></div><div style="display:flex"><button class="btn-action" onclick="abrirModal(${i})">✏️</button><button class="btn-action" onclick="if(confirm('Remover do catálogo?')){db.produtos.splice(${i},1);save();}">🗑️</button></div></div>`;
+                    listEstoque.innerHTML += `
+                    <div class="item-card">
+                        <div>
+                            <b>${p.nome}</b><br>
+                            <small>${p.qtd} un | Venda: ${fmt(p.venda)}</small><br>
+                            <span class="margin-badge">Lucro unitário: ${fmt(lucroValor)} (${margem}%)</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:3px">
+                            <button class="btn-action" onclick="moverProduto(${i}, -1)">⬆️</button>
+                            <button class="btn-action" onclick="moverProduto(${i}, 1)">⬇️</button>
+                            <button class="btn-action" onclick="abrirModal(${i})">✏️</button>
+                            <button class="btn-action" onclick="if(confirm('Remover do catálogo?')){db.produtos.splice(${i},1);save();}">🗑️</button>
+                        </div>
+                    </div>`;
                 });
             }
 
@@ -291,14 +308,11 @@
             if(p.qtd <= 0) return alert("Sem estoque!");
             
             if(contextoVenda === 'venda') {
-                // Pergunta do Frete
                 const frete = parseFloat(prompt("Custo de frete/entrega para esta venda? (Deixe 0 se não houver)")?.replace(',','.'));
                 
                 p.qtd--;
-                // Log da Venda
                 db.logs.push({ t:'v', n: p.nome, v: p.venda, custo: p.custo, dataIso: new Date() });
                 
-                // Log do Frete (se houver)
                 if(frete > 0) {
                     db.logs.push({ t:'d', n: 'Entrega: ' + p.nome, v: frete, dataIso: new Date() });
                 }
@@ -315,7 +329,6 @@
             }
         }
 
-        // NOVO: REMOVER VENDA COM ESTORNO DE ESTOQUE
         function removerVenda(index) {
             const log = db.logs[index];
             if(confirm("Deseja apagar esta venda?")) {
@@ -406,7 +419,7 @@
             const blob = new Blob([JSON.stringify(db)], { type: "application/json" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "backup_wr_v25.json"; a.click();
+            a.download = "backup_wr_v26.json"; a.click();
         }
 
         function importarBackup(e) {
