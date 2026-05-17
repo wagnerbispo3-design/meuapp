@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Lucro Fácil v2.6 - WR Acessórios</title>
+    <title>Gestão de Vendas v2.6 - WR Acessórios</title>
     <style>
         :root {
             --primary: #22c55e;
@@ -200,7 +200,7 @@
 
         function save() { localStorage.setItem('lucro_facil_v21', JSON.stringify(db)); render(); }
 
-        // Função para mover os produtos de posição no array
+        // Mover produtos de posição
         function moverProduto(index, direcao) {
             const novoIndex = index + direcao;
             if (novoIndex >= 0 && novoIndex < db.produtos.length) {
